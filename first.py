@@ -1,4 +1,6 @@
 from flask import Flask, request, url_for, render_template, redirect, session
+import requests
+import json
 
 app = Flask(__name__)
 app.secret_key = 'stringa segreta'
@@ -11,11 +13,16 @@ def login(name=None):
         return render_template('login.html')
 
     elif request.method == 'POST':
-        session['username'] = request.form.get('username')
-        session['password'] = request.form.get('password')
-        return redirect(url_for('index'))
-
-    return redirect(url_for('index'))
+        username = request.form.get('username')
+        pin = request.form.get('password')
+        r = requests.post('http://localhost:8000', data={'username': username, 'pin': pin})
+        data = json.loads(r.text)
+        print(data['response'])
+        if(data['response']==1):
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html')
+    return redirect(url_for('login'))
 
 
 @app.route('/')

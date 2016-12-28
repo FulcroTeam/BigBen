@@ -1,54 +1,76 @@
 {% include "head.html" %}
-        <form method="POST" action="login">
-            <div class="section"></div>
-            <main class="col s12 m6 offset-m3">
-                <center>
-                    <div class="section"></div>
+    <body>
+        <nav class="pink lighten-1" role="navigation">
+            <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Roma in Terrazza</a>
+                <ul class="right hide-on-med-and-down">
+                    <li><a href="/login">Home</a></li>
+                    <li><a href="/businessplan">Business Plan</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/login"><i class="material-icons">login</i></a></li>
+                </ul>
 
-                    <h5 class="indigo-text">Benvenuto al B&B Roma in Terrazza!</h5>
-                    <div class="section"></div>
+                <ul id="nav-mobile" class="side-nav">
+                    <li><a href="/login">Home</a></li>
+                    <li><a href="/businessplan">Business Plan</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/login"><i class="material-icons">login</i>Login</a></li>
+                </ul>
+                <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+            </div>
+        </nav>
+        <div class="container">
+            <form method="POST" action="login">
+                <div class="section"></div>
+                <main class="col s12 m6 offset-m3">
+                    <center>
+                        <div class="section"></div>
 
-                        <div class="container">
-                            <div class="z-depth-1 grey lighten-4 row" style="display: inline-block; padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
-                                <div class='row'>
-                                    <div class='col s12'>
-                                    </div>
-                                </div>
-                                <div style="text-align: center;">
-                                        Ciao, questo è il nostro sistema di gestione domotica a distanza.
-                                </div><br>
-                                <div style="text-align: left;">
-                                    Da qui puoi controllare e gestire le luci, la temperatura, l'apertura delle porte e l'inserimento dell'allarme della casa che hai affittato.<br>
-                                    <br>
-                                    Accedi con un click!
-                                </div>
-                                <div class='row'>
-                                    <div class='input-field col s12'>
-                                        <input class='validate' type='text' name='username' id='username' />
-                                        <label for='username'>Enter your Username</label>
-                                    </div>
-                                </div>
+                        <h5 class="indigo-text">Benvenuto al B&B Roma in Terrazza!</h5>
+                        <div class="section"></div>
 
-                                <div class='row'>
-                                    <div class='input-field col s12'>
-                                        <input class='validate' type='password' name='password' id='password' />
-                                        <label for='password'>Enter your password</label>
-                                    </div>
-                                </div>
-
-                                <br />
-                                <center>
+                            <div class="container">
+                                <div class="z-depth-1 grey lighten-4 row" style="display: inline-block; padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
                                     <div class='row'>
-                                        <button type='submit' name='btn_login' class='col s12 btn btn-large waves-effect indigo'>Entra a Casa</button>
+                                        <div class='col s12'>
+                                        </div>
                                     </div>
-                                </center>
+                                    <div style="text-align: center;">
+                                            Ciao, questo è il nostro sistema di gestione domotica a distanza.
+                                    </div><br>
+                                    <div style="text-align: left;">
+                                        Da qui puoi controllare e gestire le luci, la temperatura, l'apertura delle porte e l'inserimento dell'allarme della casa che hai affittato.<br>
+                                        <br>
+                                        Accedi con un click!
+                                    </div>
+                                    <div class='row'>
+                                        <div class='input-field col s12'>
+                                            <input class='validate' type='text' name='username' id='username' />
+                                            <label for='username'>Enter your Username</label>
+                                        </div>
+                                    </div>
+
+                                    <div class='row'>
+                                        <div class='input-field col s12'>
+                                            <input class='validate' type='password' name='password' id='password' />
+                                            <label for='password'>Enter your password</label>
+                                        </div>
+                                    </div>
+
+                                    <br />
+                                    <center>
+                                        <div class='row'>
+                                            <button type='submit' name='btn_login' class='col s12 btn btn-large waves-effect indigo'>Entra a Casa</button>
+                                        </div>
+                                    </center>
+                                </div>
                             </div>
-                        </div>
 
-                </center>
+                    </center>
 
-                <div class="section"></div>
-                <div class="section"></div>
-            </main>
-        </form>
+                    <div class="section"></div>
+                    <div class="section"></div>
+                </main>
+            </form>
 {% include "foot.html" %}
