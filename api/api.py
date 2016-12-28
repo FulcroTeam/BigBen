@@ -1,66 +1,53 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from pathlib import Path
-import socketserver
+from flask import Flask, request, jsonify, make_response
+from binascii import hexlify
+from pbkdf2 import PBKDF2
+from os import urandom
 import sqlite3
-import json
+
+app = Flask(__name__)
+app.secret_key = 'stringa segreta dell\'api'
+
+# TODO
+# To generate a new user key:
+# salt = hexlify(urandom(8)) #64 bit salt
+# key = PBKDF2("newpassword", salt, iterations=10000).hexread(32)
+# change hexread() with read to get the bytes instead of the hex
+# then store both password and salt in the database
+# REAL EXAMPLE:
+"""Python 3.5.2+ (default, Nov 22 2016, 01:00:20)
+[GCC 6.2.1 20161119] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from binascii import hexlify
+>>> from pbkdf2 import PBKDF2
+>>> from os import urandom
+>>> salt = hexlify(urandom(8))
+>>> password = "1234"
+>>> key = PBKDF2(password, salt, iterations=10000).hexread(32)
+>>> key
+'a2147ef91cd3843269f6f74317afd540ddfaf346699b0578434c87b31ce2ded6'
+>>>
+"""
 
 
-class S(BaseHTTPRequestHandler):
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
-    #test it with 
-    #curl -d "" localhost:8000
-    def do_POST(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
+@app.route('/login', methods=['POST'])
+def index():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    print(username)
 
-        #username = "sergio.parisi"
-        #pin = "1234"
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT key, salt, enabled FROM keys WHERE username = ?", (username,))
+    a = c.fetchone()
+    print(a)
 
-        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-        post_data = self.rfile.read(content_length)  # <--- Gets the data itself
-        post_dict = data_to_dict(post_data)
+    sessionid = ""
 
-        print(json.dumps(post_dict))
-
-
-        username = str(post_dict['username'])
-        pin = str(post_dict['pin'])
-
-
-        print(username)
-        print(pin)
-
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute("SELECT CASE WHEN EXISTS (SELECT * FROM lista_chiavi WHERE nome_utente = ? AND pin = ?) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END", (username, pin))
-        a = c.fetchone()
-        data = {
-            'response' : a[0]
-        }
-        print(a)
-        self.wfile.write(str(json.dumps(data, indent=4)).encode())
-
-
-def data_to_dict(data):
-    dictionary = {}
-    key_and_value_list = data.split(b'&')
-    for key_and_value in key_and_value_list:
-        key_and_value = key_and_value.split(b'=')
-        dictionary[key_and_value[0].decode('utf-8')] = key_and_value[1].decode('utf-8')
-    return dictionary
-
-def run(server_class=HTTPServer, handler_class=S, port=8000):
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    print('Starting httpd...')
-    httpd.serve_forever()
-
+    return jsonify({ 'sessionid' : sessionid})
 
 if __name__ == "__main__":
-    from sys import argv
-
-    if len(argv) == 2:
-        run(port=int(argv[1]))
-    else:
-        run()
+    app.run(host='0.0.0.0', port=8000)
