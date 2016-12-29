@@ -1,11 +1,13 @@
 from flask import Flask, request, jsonify, make_response
-from binascii import hexlify
+from binascii import hexlify, unhexlify
 from pbkdf2 import PBKDF2
 from os import urandom
+import hmac
+import pyaes
+import datetime
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'stringa segreta dell\'api'
 
 # TODO
 # To generate a new user key:
@@ -27,6 +29,16 @@ Type "help", "copyright", "credits" or "license" for more information.
 'a2147ef91cd3843269f6f74317afd540ddfaf346699b0578434c87b31ce2ded6'
 >>>
 """
+# TODO SECURITY UPGRADE
+# i also want the pepper
+"""
+import hmac
+from hashlib import sha256
+password = b'password'
+pepper = b'secret pepper'
+dig = hmac.new(pepper, msg=password, digestmod=sha256).digest()
+hexlify(dig)
+"""
 
 
 @app.errorhandler(404)
@@ -37,15 +49,30 @@ def not_found(error):
 def index():
     username = request.form.get('username')
     password = request.form.get('password')
-    print(username)
 
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT key, salt, enabled FROM keys WHERE username = ?", (username,))
-    a = c.fetchone()
-    print(a)
+    dbc = sqlite3.connect('database.db').cursor()
+    dbc.execute("SELECT key, salt, enabled FROM keys WHERE username = ?", (username,))
+    fetched = dbc.fetchone()
+    print("fetched from database: " + str(fetched))
 
     sessionid = ""
+
+    if fetched != None:
+        stored_key, salt, enabled = fetched
+        if enabled:
+            pbkdf2_key = PBKDF2(password, salt, iterations=10000)
+            calculated_key = pbkdf2_key.hexread(32)
+            calculated_key_bytes = pbkdf2_key.read(32)
+            print("calculated_key:" + calculated_key)
+            if calculated_key == stored_key:
+                counter_bytes = urandom(16)
+                counter = pyaes.Counter(initial_value = int.from_bytes(counter_bytes, byteorder='big'))
+                aes = pyaes.AESModeOfOperationCTR(calculated_key_bytes, counter)
+                sessionid = hexlify(counter_bytes).decode() + '|' + str(datetime.datetime.utcnow()) + '|' + username
+                print("unencrypted sessionid: " + sessionid)
+                ciphertext = aes.encrypt(sessionid)
+                sessionid = hexlify(ciphertext).decode()
+                print("encrypted sessionid: " + sessionid)
 
     return jsonify({ 'sessionid' : sessionid})
 

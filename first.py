@@ -3,7 +3,9 @@ import requests
 import json
 
 app = Flask(__name__)
-app.secret_key = 'stringa segreta'
+app.secret_key = 'this must be secret in order to protect the session'
+
+api_host = 'http://localhost:8000/'
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -14,20 +16,28 @@ def login():
 
     elif request.method == 'POST':
         username = request.form.get('username')
-        pin = request.form.get('password')
-        r = requests.post('http://localhost:8000/login/', data={'username': username, 'password': pin})
+        password = request.form.get('password')
+
+        r = requests.post(api_host + 'login', data={'username': username, 'password': password})
         data = json.loads(r.text)
-        print(data['response'])
-        if(data['response']==1):
+        print(data['sessionid'])
+        if(data['sessionid']!=""):
+            session['sessionid'] = data['sessionid']
             return redirect(url_for('index'))
         else:
-            return render_template('login.html')
+            return render_template('login.html', last_was_wrong=True)
+    return redirect(url_for('login'))
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('sessionid', None)
     return redirect(url_for('login'))
 
 
 @app.route('/')
 def index():
-    if 'username' in session.keys() and session['username'] != '':
+    if 'sessionid' not in session.keys() or session['sessionid'] != '':
         return render_template('index.html')
     return redirect(url_for('login'))
 

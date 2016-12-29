@@ -58,6 +58,14 @@
                                         </div>
                                     </div>
 
+                                    {% if last_was_wrong %}
+                                      <div class='row'>
+                                          <div class='col s12'>
+                                              <span style="color: red;">Last attempt was wrong</span>
+                                          </div>
+                                      </div>
+                                    {% endif %}
+
                                     <br />
                                     <center>
                                         <div class='row'>
