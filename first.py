@@ -37,7 +37,7 @@ def logout():
 
 @app.route('/')
 def index():
-    if 'sessionid' not in session.keys() or session['sessionid'] != '':
+    if 'sessionid' in session.keys() and session['sessionid'] != '':
         return render_template('index.html')
     return redirect(url_for('login'))
 
