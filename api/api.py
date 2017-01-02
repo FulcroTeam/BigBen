@@ -40,6 +40,28 @@ dig = hmac.new(pepper, msg=password, digestmod=sha256).digest()
 hexlify(dig)
 """
 
+import serial
+import time
+import threading
+
+ard = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
+time.sleep(1)
+print("Comunicazione Seriale Aperta.")
+
+class CmdThread(threading.Thread):
+
+    def __init__(self, ThreadId, actionCode):
+        threading.Thread.__init__(self)
+        self.ThreadId=ThreadId
+        self.actionCode=actionCode
+
+    def run(self):
+        while True:
+            onetoten = range(1, 20)
+            for count in onetoten:
+                ard.write(self.actionCode.encode())
+            break
+
 
 @app.errorhandler(404)
 def not_found(error):
@@ -75,6 +97,20 @@ def index():
                 print("encrypted sessionid: " + sessionid)
 
     return jsonify({ 'sessionid' : sessionid})
+
+
+@app.route('/index', methods=['GET'])
+def catchandshot():
+    id = request.args.get('id')
+    if(id=='condizionatore'):
+      actionCode = '3'
+    print("id: "+id+"  -  actionCode: "+actionCode)
+    ThreadGenerator(actionCode)
+    return make_response(jsonify({'done': 'yes'}))
+
+def ThreadGenerator(data):
+    my_thread = CmdThread(0, data)
+    my_thread.start()
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)
