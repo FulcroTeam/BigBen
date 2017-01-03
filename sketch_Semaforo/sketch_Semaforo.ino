@@ -21,7 +21,7 @@ void loop() {
       digitalWrite(3,HIGH);
       break;
     case 4:
-      digitalWrite(4,HIGH);
+      digitalWrite(3,LOW);
       break;
    /* case 6:
       digitalWrite(6,HIGH);
