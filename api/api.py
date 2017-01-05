@@ -9,37 +9,6 @@ import sqlite3
 
 app = Flask(__name__)
 
-# TODO
-# To generate a new user key:
-# salt = hexlify(urandom(8)) #64 bit salt
-# key = PBKDF2("newpassword", salt, iterations=10000).hexread(32)
-# change hexread() with read to get the bytes instead of the hex
-# then store both password and salt in the database
-# REAL EXAMPLE:
-"""Python 3.5.2+ (default, Nov 22 2016, 01:00:20)
-[GCC 6.2.1 20161119] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> from binascii import hexlify
->>> from pbkdf2 import PBKDF2
->>> from os import urandom
->>> salt = hexlify(urandom(8))
->>> password = "1234"
->>> key = PBKDF2(password, salt, iterations=10000).hexread(32)
->>> key
-'a2147ef91cd3843269f6f74317afd540ddfaf346699b0578434c87b31ce2ded6'
->>>
-"""
-# TODO SECURITY UPGRADE
-# i also want the pepper
-"""
-import hmac
-from hashlib import sha256
-password = b'password'
-pepper = b'secret pepper'
-dig = hmac.new(pepper, msg=password, digestmod=sha256).digest()
-hexlify(dig)
-"""
-
 import serial
 import time
 import threading
