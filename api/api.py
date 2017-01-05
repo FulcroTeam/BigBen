@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, make_response, g
 from binascii import hexlify
-from hashlib import sha256
+from hashlib import sha256, sha512
 from pbkdf2 import PBKDF2
 from os import urandom
 import hmac
@@ -20,6 +20,7 @@ def get_the_pepper():
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(app.config['DATABASE'])
+    rv.create_function("sha512", 1, lambda x: sha512(x).hexdigest())
     return rv
 
 def get_db():
@@ -83,11 +84,21 @@ def index():
             final = hexlify(hmac.new(pepper, msg=key_bytes, digestmod=sha256).digest())
 
             if final == stored_key:
-                sessionid = final.decode()
-
+                sessionid = sha512(final).hexdigest()
 
     return jsonify({ 'sessionid' : sessionid})
 
+#curl -d "sessionid=f03a7f101095392d75a3cfe99bfa02f00658eeaf6e55fe56c6c143189664abfb9c43403395995a3ffd11ec21e97417e5c10a7db866ca2ee1ac515d3969c9d81" http://localhost:8000/checklogin
+@app.route('/checklogin', methods=['POST'])
+def checklogin_route():
+    sessionid = request.form.get('sessionid')
+    logged = checklogin(sessionid)
+    return jsonify({"logged" : logged})
+
+def checklogin(sessionid):
+    dbc = get_db().cursor()
+    dbc.execute("SELECT COUNT(*) FROM keys WHERE sha512(key) = ?", (sessionid,))
+    return bool(dbc.fetchone()[0])
 
 @app.route('/index', methods=['GET'])
 def catchandshot():
