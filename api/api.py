@@ -13,7 +13,7 @@ import serial
 import time
 import threading
 
-ard = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
+ard = serial.Serial('/dev/ttyACM1', 9600, timeout=0)
 time.sleep(1)
 print("Comunicazione Seriale Aperta.")
 
@@ -26,7 +26,7 @@ class CmdThread(threading.Thread):
 
     def run(self):
         while True:
-            onetoten = range(1, 20)
+            onetoten = range(1, 4)
             for count in onetoten:
                 ard.write(self.actionCode.encode())
             break
@@ -71,9 +71,12 @@ def index():
 @app.route('/index', methods=['GET'])
 def catchandshot():
     id = request.args.get('id')
-    if(id=='condizionatore'):
+    state = request.args.get('state')
+    if(id=='condizionatore' and state=='on'):
       actionCode = '3'
-    print("id: "+id+"  -  actionCode: "+actionCode)
+    elif(id=='condizionatore' and state=='off'):
+        actionCode = '4'
+    print("id: "+id+"  -  state: "+state+"  -  actionCode: "+actionCode)
     ThreadGenerator(actionCode)
     return make_response(jsonify({'done': 'yes'}))
 
