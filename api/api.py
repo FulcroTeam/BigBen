@@ -4,11 +4,13 @@ from hashlib import sha256, sha512
 from pbkdf2 import PBKDF2
 from os import urandom
 import hmac
-import datetime
+from datetime import datetime, timedelta
 import sqlite3
 
 app = Flask(__name__)
 app.config['DATABASE'] = "database.db"
+
+sessions = {}
 
 def get_the_pepper():
     #Read the pepper from a file and delete the trailing newline
@@ -20,7 +22,6 @@ def get_the_pepper():
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(app.config['DATABASE'])
-    rv.create_function("sha512", 1, lambda x: sha512(x).hexdigest())
     return rv
 
 def get_db():
@@ -64,6 +65,7 @@ class CmdThread(threading.Thread):
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+#curl -d "username=castiglia.vincenzo&password=castix" http://localhost:8000/login
 @app.route('/login', methods=['POST'])
 def index():
     username = request.form.get('username')
@@ -84,11 +86,12 @@ def index():
             final = hexlify(hmac.new(pepper, msg=key_bytes, digestmod=sha256).digest())
 
             if final == stored_key:
-                sessionid = sha512(final).hexdigest()
+                sessionid = hexlify(urandom(32)).decode()
+                sessions.update({ sessionid : { 'username' : username, 'timestamp' : datetime.utcnow() } })
 
     return jsonify({ 'sessionid' : sessionid})
 
-#curl -d "sessionid=f03a7f101095392d75a3cfe99bfa02f00658eeaf6e55fe56c6c143189664abfb9c43403395995a3ffd11ec21e97417e5c10a7db866ca2ee1ac515d3969c9d81" http://localhost:8000/checklogin
+#curl -d "sessionid=06b7b0fba14184b08cff926844752f99552e3d47f2aa9e0749ce2ae20f901211" http://localhost:8000/checklogin
 @app.route('/checklogin', methods=['POST'])
 def checklogin_route():
     sessionid = request.form.get('sessionid')
@@ -96,9 +99,11 @@ def checklogin_route():
     return jsonify({"logged" : logged})
 
 def checklogin(sessionid):
-    dbc = get_db().cursor()
-    dbc.execute("SELECT COUNT(*) FROM keys WHERE sha512(key) = ?", (sessionid,))
-    return bool(dbc.fetchone()[0])
+    if sessionid in sessions:
+        if sessions[sessionid]['timestamp'] > datetime.utcnow() - timedelta(minutes=5):
+            sessions[sessionid]['timestamp'] = datetime.utcnow()
+            return True
+    return False
 
 @app.route('/index', methods=['GET'])
 def catchandshot():
