@@ -58,7 +58,6 @@ class Arduino_one:
         return char
 
 arduino_one = Arduino_one()
-arduino_one.serial_write_and_read(b'digitalWrite;13;HIGH')
 
 
 @app.errorhandler(404)
@@ -67,7 +66,7 @@ def not_found(error):
 
 #curl -d "username=castiglia.vincenzo&password=castix" http://localhost:8000/login
 @app.route('/login', methods=['POST'])
-def index():
+def login():
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -100,54 +99,35 @@ def checklogin_route():
 
 def checklogin(sessionid):
     if sessionid in sessions:
-        if sessions[sessionid]['timestamp'] > datetime.utcnow() - timedelta(minutes=5):
+        if sessions[sessionid]['timestamp'] > datetime.utcnow() - timedelta(minutes=10):
             sessions[sessionid]['timestamp'] = datetime.utcnow()
             return True
     return False
 
-@app.route('/toggle13', methods=['POST', 'GET'])
-def toggle13():
+@app.route('/toggle/<int:pin>', methods=['POST', 'GET'])
+def toggle(pin):
     if checklogin(request.form.get('sessionid')):
-        status = bool(int(arduino_one.serial_write_and_read(b'toggle13;')))
+        status = bool(int(arduino_one.serial_write_and_read(b'toggle;' + str(pin).encode())))
         return jsonify({"logged" : True, "status" : status})
     return jsonify({"logged" : False})
 
-"""
-#parser queste sono cose tue... che devi farci?
-ard = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
-time.sleep(1)
-print("Comunicazione Seriale Aperta.")
+@app.route('/', methods=['POST'])
+def index():
+    if checklogin(request.form.get('sessionid')):
+        response_data = { "logged" : True }
+        command = request.form.get('command')
+        pin = request.form.get('pin')
+        value = request.form.get('value')
+        if command == 'toggle':
+            response_data['on'] = bool(int(arduino_one.serial_write_and_read(b'toggle;' + str(pin).encode())))
 
-class CmdThread(threading.Thread):
+        else:
+            response_data['error'] = "COMMAND UNRECOGNIZED: " + command
 
-    def __init__(self, ThreadId, actionCode):
-        threading.Thread.__init__(self)
-        self.ThreadId=ThreadId
-        self.actionCode=actionCode
+        return jsonify(response_data)
 
-    def run(self):
-        while True:
-            onetoten = range(1, 4)
-            for count in onetoten:
-                ard.write(self.actionCode.encode())
-            break
+    return jsonify({"logged" : False})
 
-@app.route('/index', methods=['GET'])
-def catchandshot():
-    id = request.args.get('id')
-    state = request.args.get('state')
-    if(id=='condizionatore' and state=='on'):
-      actionCode = '3'
-    elif(id=='condizionatore' and state=='off'):
-        actionCode = '4'
-    print("id: "+id+"  -  state: "+state+"  -  actionCode: "+actionCode)
-    ThreadGenerator(actionCode)
-    return make_response(jsonify({'done': 'yes'}))
-
-def ThreadGenerator(data):
-    my_thread = CmdThread(0, data)
-    my_thread.start()
-"""
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)

@@ -34,6 +34,18 @@ def logout():
     session.pop('sessionid', None)
     return redirect(url_for('login'))
 
+@app.route('/ajax', methods=['POST'])
+def ajax():
+    print(str(request.form))
+    request_data = {
+        'sessionid' : session['sessionid'],
+        'command' : request.form['command'],
+        'pin' : request.form['pin'],
+        'value' : request.form['value']
+    }
+    r = requests.post(api_host, data=request_data)
+    return r.text
+
 
 @app.route('/')
 def index():

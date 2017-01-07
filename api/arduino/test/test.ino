@@ -31,9 +31,9 @@ void loop() {
     //Serial.println(splittedString[2]);
     
 
-    if (splittedString[0].equals("toggle13")) {
-      digitalWrite(13, !digitalRead(13));
-      Serial.println(digitalRead(13));
+    if (splittedString[0].equals("toggle")) {
+      digitalWrite(splittedString[1].toInt(), !digitalRead(splittedString[1].toInt()));
+      Serial.println(digitalRead(splittedString[1].toInt()));
     }
     
     if (splittedString[0].equals("digitalWrite")) {
