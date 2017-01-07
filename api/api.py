@@ -40,25 +40,25 @@ def close_db(error):
 
 import serial
 import time
-import threading
+from threading import Thread
 
-ard = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
-time.sleep(1)
-print("Comunicazione Seriale Aperta.")
+class Arduino_one:
 
-class CmdThread(threading.Thread):
+    def __init__(self):
+        self.ser = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
+        time.sleep(2)
+        print("Comunicazione Seriale Aperta.")
 
-    def __init__(self, ThreadId, actionCode):
-        threading.Thread.__init__(self)
-        self.ThreadId=ThreadId
-        self.actionCode=actionCode
+    def serial_write_and_read(self, text=""):
+        self.ser.write(text)
+        self.ser.flush()
+        time.sleep(0.2)
+        char = self.ser.readline()[:-2] #no newlines
+        print(char)
+        return char
 
-    def run(self):
-        while True:
-            onetoten = range(1, 4)
-            for count in onetoten:
-                ard.write(self.actionCode.encode())
-            break
+arduino_one = Arduino_one()
+arduino_one.serial_write_and_read(b'digitalWrite;13;HIGH')
 
 
 @app.errorhandler(404)
@@ -105,6 +105,33 @@ def checklogin(sessionid):
             return True
     return False
 
+@app.route('/toggle13', methods=['POST', 'GET'])
+def toggle13():
+    if checklogin(request.form.get('sessionid')):
+        status = bool(int(arduino_one.serial_write_and_read(b'toggle13;')))
+        return jsonify({"logged" : True, "status" : status})
+    return jsonify({"logged" : False})
+
+"""
+#parser queste sono cose tue... che devi farci?
+ard = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
+time.sleep(1)
+print("Comunicazione Seriale Aperta.")
+
+class CmdThread(threading.Thread):
+
+    def __init__(self, ThreadId, actionCode):
+        threading.Thread.__init__(self)
+        self.ThreadId=ThreadId
+        self.actionCode=actionCode
+
+    def run(self):
+        while True:
+            onetoten = range(1, 4)
+            for count in onetoten:
+                ard.write(self.actionCode.encode())
+            break
+
 @app.route('/index', methods=['GET'])
 def catchandshot():
     id = request.args.get('id')
@@ -120,6 +147,7 @@ def catchandshot():
 def ThreadGenerator(data):
     my_thread = CmdThread(0, data)
     my_thread.start()
+"""
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)
