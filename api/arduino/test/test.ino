@@ -6,7 +6,8 @@ int index1, index2, index3;
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(100);
-  
+
+  pinMode(3,OUTPUT);
   pinMode(13, OUTPUT);
 }
 
