@@ -7,7 +7,7 @@ $(document).ready(function() {
       'pin' : 13,
       'value' : 0
     };
-    $.post('http://localhost:8080/ajax', request_data, function(data) {
+    $.post('http://192.168.1.4:8080/ajax', request_data, function(data) {
       console.log(data);
       $('#kitchen_light').prop('checked', data['on']);
     });
