@@ -115,8 +115,8 @@ def checklogin_route():
 
 def checklogin(sessionid):
     if sessionid in sessions:
-        if sessions[sessionid]['timestamp'] > datetime.utcnow()
-        - timedelta(minutes=10):
+        if sessions[sessionid]['timestamp'] > datetime.utcnow() - timedelta(
+                minutes=10):
             sessions[sessionid]['timestamp'] = datetime.utcnow()
             return True
     return False
