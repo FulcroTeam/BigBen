@@ -1,3 +1,6 @@
+#include <Servo.h>
+Servo myServo;
+
 String string;
 char delimiter = ';';
 String splittedString[3];
@@ -7,9 +10,18 @@ void setup() {
   Serial.begin(9600);
   Serial.setTimeout(100);
 
-  pinMode(3,OUTPUT);
+  pinMode(2,OUTPUT);  //fan
   pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(7, OUTPUT);
+  pinMode(3, OUTPUT);
   pinMode(A0, INPUT);
+  myServo.attach(3);
+  myServo.write(0); 
 }
 
 void loop() {
