@@ -9,9 +9,11 @@ void setup() {
 
   pinMode(3,OUTPUT);
   pinMode(13, OUTPUT);
+  pinMode(A0, INPUT);
 }
 
 void loop() {
+  
   if (Serial.available() > 0) {
     string = Serial.readString();
     //Serial.println(string);
@@ -35,6 +37,18 @@ void loop() {
     if (splittedString[0].equals("toggle")) {
       digitalWrite(splittedString[1].toInt(), !digitalRead(splittedString[1].toInt()));
       Serial.println(digitalRead(splittedString[1].toInt()));
+    }
+
+    if (splittedString[0].equals("temperature")) {
+     //getting the voltage reading from the temperature sensor
+     int reading = analogRead(splittedString[1].toInt());  
+     
+     float voltage = reading * 5.0;
+     voltage /= 1024.0; 
+          
+     float temperature = (voltage - 0.5) * 100 ;  
+
+     Serial.print(temperature);
     }
     
     if (splittedString[0].equals("digitalWrite")) {

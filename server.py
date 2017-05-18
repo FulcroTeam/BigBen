@@ -4,6 +4,8 @@ import json
 
 app = Flask(__name__)
 app.secret_key = 'this must be secret in order to protect the session'
+app.config['DEBUG'] = True
+
 
 api_host = 'http://localhost:8000/'
 
@@ -52,6 +54,7 @@ def index():
     if 'sessionid' in session.keys() and session['sessionid'] != '':
         return render_template('index.html')
     return redirect(url_for('login'))
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)

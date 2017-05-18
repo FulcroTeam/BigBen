@@ -9,6 +9,8 @@ import sqlite3
 
 app = Flask(__name__)
 app.config['DATABASE'] = "database.db"
+app.config['DEBUG'] = True
+
 
 sessions = {}
 
@@ -111,6 +113,15 @@ def toggle(pin):
         return jsonify({"logged" : True, "status" : status})
     return jsonify({"logged" : False})
 
+@app.route('/temperature/<string:pin>', methods=['POST','GET'])
+def temperature(pin):
+    if checklogin(request.form.get('sessionid')):
+        temperature = float(arduino_one.serial_write_and_read(b'temperature;' + str(pin).encode()))
+        #print(float(arduino_one.serial_write_and_read(b'temperature;' + str(pin).encode())))
+        return jsonify({"logged" : True, "temperature" : temperature})
+    return jsonify({"logged" : False})
+
+
 @app.route('/', methods=['POST'])
 def index():
     if checklogin(request.form.get('sessionid')):
@@ -120,6 +131,10 @@ def index():
         value = request.form.get('value')
         if command == 'toggle':
             response_data['on'] = bool(int(arduino_one.serial_write_and_read(b'toggle;' + str(pin).encode())))
+
+        elif command == 'temperature':
+            response_data['temperature'] = float(arduino_one.serial_write_and_read(b'temperature;' + str(pin).encode()))
+            print(response_data['temperature'])
 
         else:
             response_data['error'] = "COMMAND UNRECOGNIZED: " + command
