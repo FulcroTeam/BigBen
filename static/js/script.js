@@ -1,38 +1,46 @@
 $(document).ready(function() {
 
-  tmpUpdate();
-  setInterval(tmpUpdate,6000);
-
+  //navbar collapse (navigation drawer)
   $(".button-collapse").sideNav();
 
-  function tmpUpdate() {
-      var request_data = {
-        'command' : 'temperature',
-        'pin' : 0,
-        'value' : 0
-      };
-      $.post('http://localhost:8080/ajax', request_data, function(data) {
-        data = JSON.parse(data)
-        console.log(data);
-        $('#tmp').text(data['temperature']+"°C");
-      });
 
-      return false;
+  function request(data, handler) {
+    $.post('/ajax', data, function(data) {
+      data = JSON.parse(data);
+      console.log(data);
+      if(!data.logged) {
+        if (window.location.pathname != '/login') {
+          window.location = '/login';
+        }
+      }
+      handler(data);
+    });
   }
 
-  $('#kitchen_light').click(function(e) {
-    var request_data = {
-      'command' : 'toggle',
-      'pin' : 13,
+
+  function tmpUpdate() {
+    request({
+      'command' : 'temperature',
+      'pin' : 1,
       'value' : 0
-    };
-    $.post('http://localhost:8080/ajax', request_data, function(data) {
-      data = JSON.parse(data)
-      console.log(data);
-      $('#kitchen_light').prop('checked', data['on']);
+    }, function(data) {
+      $('#tmp').text(data['temperature']+"°C");
+    });
+  }
+  if (window.location.pathname != '/login') {
+    tmpUpdate();
+    setInterval(tmpUpdate,6000);
+  }
+
+  $('.toggle').click(function(e) {
+    console.log("toggle: " + this.getAttribute('data-pin'));
+    id = this.getAttribute('id');
+    request({
+      'command' : 'toggle',
+      'pin' : this.getAttribute('data-pin'),
+      'value' : 0
+    }, function(data) {
+      $('#' + id).prop('checked', data['on']);
     });
   });
-
-
-
 });
