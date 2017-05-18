@@ -20,15 +20,17 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        r = requests.post(api_host + 'login', data={'username': username, 'password': password})
+        r = requests.post(api_host + 'login',
+                          data={'username': username, 'password': password})
         data = json.loads(r.text)
         print(data['sessionid'])
-        if(data['sessionid']!=""):
+        if(data['sessionid'] != ""):
             session['sessionid'] = data['sessionid']
             return redirect(url_for('index'))
         else:
             return render_template('login.html', last_was_wrong=True)
     return redirect(url_for('login'))
+
 
 @app.route('/logout')
 def logout():
@@ -36,14 +38,15 @@ def logout():
     session.pop('sessionid', None)
     return redirect(url_for('login'))
 
+
 @app.route('/ajax', methods=['POST'])
 def ajax():
     print(str(request.form))
     request_data = {
-        'sessionid' : session['sessionid'],
-        'command' : request.form['command'],
-        'pin' : request.form['pin'],
-        'value' : request.form['value']
+        'sessionid': session['sessionid'],
+        'command': request.form['command'],
+        'pin': request.form['pin'],
+        'value': request.form['value']
     }
     r = requests.post(api_host, data=request_data)
     return r.text

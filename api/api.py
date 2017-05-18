@@ -6,6 +6,10 @@ from os import urandom
 import hmac
 from datetime import datetime, timedelta
 import sqlite3
+import serial
+import time
+from threading import Thread
+
 
 app = Flask(__name__)
 app.config['DATABASE'] = "database.db"
@@ -14,17 +18,20 @@ app.config['DEBUG'] = True
 
 sessions = {}
 
+
 def get_the_pepper():
-    #Read the pepper from a file and delete the trailing newline
+    # Read the pepper from a file and delete the trailing newline
     pepper_f = open('pepper', 'r')
     pepper = pepper_f.readline()[:-1].encode()
     pepper_f.close()
     return pepper
 
+
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(app.config['DATABASE'])
     return rv
+
 
 def get_db():
     """Opens a new database connection if there is none yet for the
@@ -33,16 +40,13 @@ def get_db():
         g.sqlite_db = connect_db()
     return g.sqlite_db
 
+
 @app.teardown_appcontext
 def close_db(error):
     """Closes the database again at the end of the request."""
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
-
-import serial
-import time
-from threading import Thread
 
 class Arduino_one:
 
@@ -55,9 +59,10 @@ class Arduino_one:
         self.ser.write(text)
         self.ser.flush()
         time.sleep(0.2)
-        char = self.ser.readline()[:-2] #no newlines
+        char = self.ser.readline()[:-2]  # no newlines
         print(char)
         return char
+
 
 arduino_one = Arduino_one()
 
@@ -66,74 +71,94 @@ arduino_one = Arduino_one()
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-#curl -d "username=castiglia.vincenzo&password=castix" http://localhost:8000/login
+
+# curl -d "username=castiglia.vincenzo&password=castix"
+# http://localhost:8000/login
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form.get('username')
     password = request.form.get('password')
 
     dbc = get_db().cursor()
-    dbc.execute("SELECT key, salt, enabled FROM keys WHERE username = ?", (username,))
+    dbc.execute("SELECT key, salt, enabled FROM keys WHERE username = ?",
+                (username,))
     fetched = dbc.fetchone()
     print("fetched from database: " + str(fetched))
 
     sessionid = ""
 
-    if fetched != None:
+    if fetched is not None:
         stored_key, salt, enabled = fetched
         if enabled:
             key_bytes = PBKDF2(password, salt, iterations=10000).read(32)
             pepper = get_the_pepper()
-            final = hexlify(hmac.new(pepper, msg=key_bytes, digestmod=sha256).digest())
+            final = hexlify(hmac.new(pepper, msg=key_bytes, digestmod=sha256).
+                            digest())
 
             if final == stored_key:
                 sessionid = hexlify(urandom(32)).decode()
-                sessions.update({ sessionid : { 'username' : username, 'timestamp' : datetime.utcnow() } })
+                sessions.update({sessionid: {
+                    'username': username,
+                    'timestamp': datetime.utcnow()
+                    }})
 
-    return jsonify({ 'sessionid' : sessionid})
+    return jsonify({'sessionid': sessionid})
 
-#curl -d "sessionid=06b7b0fba14184b08cff926844752f99552e3d47f2aa9e0749ce2ae20f901211" http://localhost:8000/checklogin
+
+# curl -d "sessionid=bfdkabfkb...asdbfiusadbi" http://localhost:8000/checklogin
 @app.route('/checklogin', methods=['POST'])
 def checklogin_route():
     sessionid = request.form.get('sessionid')
     logged = checklogin(sessionid)
-    return jsonify({"logged" : logged})
+    return jsonify({"logged": logged})
+
 
 def checklogin(sessionid):
     if sessionid in sessions:
-        if sessions[sessionid]['timestamp'] > datetime.utcnow() - timedelta(minutes=10):
+        if sessions[sessionid]['timestamp'] > datetime.utcnow()
+        - timedelta(minutes=10):
             sessions[sessionid]['timestamp'] = datetime.utcnow()
             return True
     return False
 
+
 @app.route('/toggle/<int:pin>', methods=['POST', 'GET'])
 def toggle(pin):
     if checklogin(request.form.get('sessionid')):
-        status = bool(int(arduino_one.serial_write_and_read(b'toggle;' + str(pin).encode())))
-        return jsonify({"logged" : True, "status" : status})
-    return jsonify({"logged" : False})
+        status = bool(int(
+            arduino_one.serial_write_and_read(b'toggle;' + str(pin).encode())))
+        return jsonify({"logged": True, "status": status})
+    return jsonify({"logged": False})
 
-@app.route('/temperature/<string:pin>', methods=['POST','GET'])
+
+@app.route('/temperature/<string:pin>', methods=['POST', 'GET'])
 def temperature(pin):
     if checklogin(request.form.get('sessionid')):
-        temperature = float(arduino_one.serial_write_and_read(b'temperature;' + str(pin).encode()))
-        #print(float(arduino_one.serial_write_and_read(b'temperature;' + str(pin).encode())))
-        return jsonify({"logged" : True, "temperature" : temperature})
-    return jsonify({"logged" : False})
+        temperature = float(
+            arduino_one.serial_write_and_read(
+                b'temperature;' + str(pin).encode()))
+        # print(float(arduino_one.serial_write_and_read(
+        # b'temperature;' + str(pin).encode())))
+        return jsonify({"logged": True, "temperature": temperature})
+    return jsonify({"logged": False})
 
 
 @app.route('/', methods=['POST'])
 def index():
     if checklogin(request.form.get('sessionid')):
-        response_data = { "logged" : True }
+        response_data = {"logged": True}
         command = request.form.get('command')
         pin = request.form.get('pin')
         value = request.form.get('value')
         if command == 'toggle':
-            response_data['on'] = bool(int(arduino_one.serial_write_and_read(b'toggle;' + str(pin).encode())))
+            response_data['on'] = bool(int(
+                arduino_one.serial_write_and_read(
+                    b'toggle;' + str(pin).encode())))
 
         elif command == 'temperature':
-            response_data['temperature'] = float(arduino_one.serial_write_and_read(b'temperature;' + str(pin).encode()))
+            response_data['temperature'] = float(
+                arduino_one.serial_write_and_read(
+                    b'temperature;' + str(pin).encode()))
             print(response_data['temperature'])
 
         else:
@@ -141,7 +166,7 @@ def index():
 
         return jsonify(response_data)
 
-    return jsonify({"logged" : False})
+    return jsonify({"logged": False})
 
 
 if __name__ == "__main__":
