@@ -80,7 +80,7 @@ def login():
     password = request.form.get('password')
 
     dbc = get_db().cursor()
-    dbc.execute("SELECT key, salt, enabled FROM keys WHERE username = ?",
+    dbc.execute("SELECT key, salt FROM users WHERE username = ?",
                 (username,))
     fetched = dbc.fetchone()
     print("fetched from database: " + str(fetched))
@@ -88,19 +88,19 @@ def login():
     sessionid = ""
 
     if fetched is not None:
-        stored_key, salt, enabled = fetched
-        if enabled:
-            key_bytes = PBKDF2(password, salt, iterations=10000).read(32)
-            pepper = get_the_pepper()
-            final = hexlify(hmac.new(pepper, msg=key_bytes, digestmod=sha256).
-                            digest())
+        stored_key, salt = fetched
 
-            if final == stored_key:
-                sessionid = hexlify(urandom(32)).decode()
-                sessions.update({sessionid: {
-                    'username': username,
-                    'timestamp': datetime.utcnow()
-                    }})
+        key_bytes = PBKDF2(password, salt, iterations=10000).read(32)
+        pepper = get_the_pepper()
+        final = hexlify(hmac.new(pepper, msg=key_bytes, digestmod=sha256).
+                        digest())
+
+        if final == stored_key:
+            sessionid = hexlify(urandom(32)).decode()
+            sessions.update({sessionid: {
+                'username': username,
+                'timestamp': datetime.utcnow()
+                }})
 
     return jsonify({'sessionid': sessionid})
 

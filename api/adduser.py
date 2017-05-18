@@ -9,10 +9,12 @@ import sys
 
 
 def main(argv):
-    if len(argv) != 3:
+    if len(argv) != 5:
         sys.stderr.write("USAGE: you have to pass two parameters:\n")
-        sys.stderr.write("1) Username\n")
-        sys.stderr.write("2) Password\n")
+        sys.stderr.write("1) First Name\n")
+        sys.stderr.write("2) Last Name\n")
+        sys.stderr.write("3) Username\n")
+        sys.stderr.write("4) Password\n")
         sys.stderr.write("The order matters!\n")
         sys.stderr.write(
             "The user would be directely inserted into database.db\n")
@@ -27,7 +29,7 @@ def main(argv):
         salt = hexlify(urandom(8))
 
         # Generate the key using password and salt
-        pbkdf2 = PBKDF2(argv[2], salt, iterations=10000)
+        pbkdf2 = PBKDF2(argv[4], salt, iterations=10000)
         key_b = pbkdf2.read(32)
         key = pbkdf2.hexread(32)
 
@@ -36,15 +38,15 @@ def main(argv):
 
         print("pepper: " + pepper.decode())
         print("salt: " + salt.decode())
-        print("username: " + argv[1])
-        print("password: " + argv[2])
+        print("username: " + argv[3])
+        print("password: " + argv[4])
         print("key: " + key)
         print("final: " + final.decode())
 
         db = sqlite3.connect('database.db')
         dbc = db.cursor()
-        dbc.execute("INSERT INTO keys VALUES (NULL, ?, ?, ?, 'true')",
-                    (argv[1], final, salt,))
+        dbc.execute("INSERT INTO users VALUES (NULL, ?, ?, ?, ?, ?)",
+                    (argv[3], final, salt, argv[1], argv[2],))
         db.commit()
         db.close()
 
