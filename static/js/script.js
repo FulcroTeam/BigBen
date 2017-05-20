@@ -17,6 +17,22 @@ $(document).ready(function() {
     });
   }
 
+  function notesLoad(){
+     console.log("Ci Pruvamo");
+     db = openDatabase('database.db', 1.0, 'my database', 2 * 1024 * 1024);
+     db.transaction(function (tx) {
+          tx.executeSql('SELECT * FROM notes', [], function (tx, results) {
+              var len = results.rows.length, i;
+              for (i = 0; i < len; i++) {
+                var row = resultSet.rows.item(i);
+                document.getElementById("content").innerHTML = ""+document.getElementById("content").innerHTML+
+                    "<div class=\"card indigo lighten-1\"><div class=\"card-content white-text\"><span class=\"note-title\">"+row['title']+"</span>"+
+                     row['body']+"</div></div><br>";
+              }
+          });
+     });
+
+  }
 
   function tmpUpdate() {
     request({

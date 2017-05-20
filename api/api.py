@@ -51,7 +51,7 @@ def close_db(error):
 class Arduino_one:
 
     def __init__(self):
-        self.ser = serial.Serial('/dev/ttyACM1', 9600, timeout=0)
+        self.ser = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
         time.sleep(2)
         print("Comunicazione Seriale Aperta.")
 
@@ -141,6 +141,7 @@ def temperature(pin):
         # b'temperature;' + str(pin).encode())))
         return jsonify({"logged": True, "temperature": temperature})
     return jsonify({"logged": False})
+
 
 
 @app.route('/', methods=['POST'])

@@ -1,0 +1,43 @@
+{% include "head.html" %}
+    <body>
+        <nav class="blue lighten-1" role="navigation">
+          <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">NewTechHome</a>
+            <ul class="right hide-on-med-and-down">
+              <li><a href="/home">Home</a></li>
+              <li><a href="/businessplan">Business Plan</a></li>
+              <li><a href="/pricing">Pricing</a></li>
+              <li><a href="/about">About</a></li>
+              <li><a href="/logout"><i class="material-icons">exit_to_app</i></a></li>
+            </ul>
+
+            <ul id="nav-mobile" class="side-nav">
+              <li><a href="/home"><i class="material-icons">home</i>Home</a></li>
+              <li><a href="/businessplan"><i class="material-icons">description</i>Business Plan</a></li>
+              <li><a href="/pricing"><i class="material-icons">euro_symbol</i>Pricing</a></li>
+              <li><a href="/about"><i class="material-icons">info_outline</i>About</a></li>
+              <li><a href="/logout"><i class="material-icons">exit_to_app</i>Logout</a></li>
+            </ul>
+            <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+          </div>
+        </nav>
+
+        <div id="content">
+
+        </div>
+        <script>
+             console.log("Ci Pruvamo");
+             db = openDatabase('database.db', 1.0, 'my database', 2 * 1024 * 1024);
+             db.transaction(function (tx) {
+                  tx.executeSql('SELECT * FROM notes', [], function (tx, results) {
+                      var len = results.rows.length, i;
+                      for (i = 0; i < len; i++) {
+                        var row = resultSet.rows.item(i);
+                        document.getElementById("content").innerHTML = ""+document.getElementById("content").innerHTML+
+                            "<div class=\"card indigo lighten-1\"><div class=\"card-content white-text\"><span class=\"note-title\">"+row['title']+"</span>"+
+                             row['body']+"</div></div><br>";
+                      }
+                  });
+             });
+        </script>
+    </body>
+</html>

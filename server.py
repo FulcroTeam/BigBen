@@ -51,6 +51,13 @@ def ajax():
     r = requests.post(api_host, data=request_data)
     return r.text
 
+@app.route('/promemoria')
+def notes():
+    if 'sessionid' in session.keys() and session['sessionid'] != '':
+        return render_template('notes.html')
+    return redirect(url_for('login'))
+
+
 
 @app.route('/')
 def index():
