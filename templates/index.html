@@ -14,7 +14,7 @@
 
 
   <body>
-    <nav class="blue lighten-1" role="navigation">
+    <nav class="blue darken-4" role="navigation">
       <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">NewTechHome</a>
         <ul class="right hide-on-med-and-down">
           <li><a href="/home">Home</a></li>
@@ -37,24 +37,27 @@
 
     <div class="container">
 
-      <div class="card indigo lighten-1">
+      <div class="card blue darken-0">
         <div class="card-content white-text">
           <span class="card-title"><h5>Casa Parisi</h5></span>
           <h6>
-            Serratura: <i>Bloccata</i><br>
+            Serratura: <div style="display:inline;" id="door">--</div></i><br>
             Temperatura Media: <i><div style="display:inline;" id="tmp">--</div></i><br>
             Sensore Gas: <i>Parametri entro i limiti</i><br>
+
+            {{ switch('Serratura', 'door', 3) }}
+
             {{ switch('Allarme', 'alarm', '') }}
 
             {{ switch('Condizionatore', 'air_conditioner', 2) }}
           </h6>
         </div>
         <div class="card-action" align="right">
-          <a href="http://www.romainterrazza.it/IT/Home.aspx"><i>Roma in Terrazza</i></a>
+          <i>NewTechHome</i>
         </div>
       </div>
 
-      <div class="card indigo lighten-1">
+      <div class="card blue darken-0">
         <div class="card-content white-text">
           <span class="card-title">Cucina</span>
           {{ switch('Luci', 'kitchen_light', 13) }}
@@ -64,11 +67,11 @@
           </h6>
         </div>
         <div class="card-action" align="right">
-          <a href="http://www.romainterrazza.it/IT/Home.aspx"><i>Roma in Terrazza</i></a>
+          <i>NewTechHome</i>
         </div>
       </div>
 
-      <div class="card indigo lighten-1">
+      <div class="card blue darken-0">
         <div class="card-content white-text">
           <span class="card-title">Giardino</span>
           {{ switch('Luci', 'garden_light', 8) }}
@@ -77,11 +80,11 @@
           <h6>Temperatura esterna: <i>19°C</i></h6>
         </div>
         <div class="card-action" align="right">
-          <a href="http://www.romainterrazza.it/IT/Home.aspx"><i>Roma in Terrazza</i></a>
+          <i>NewTechHome</i>
         </div>
       </div>
 
-      <div class="card indigo lighten-1">
+      <div class="card blue darken-0">
         <div class="card-content white-text">
           <span class="card-title">Salone</span>
           {{ switch('Luci', 'living_light', 12) }}
@@ -90,7 +93,46 @@
           </h6>
         </div>
         <div class="card-action" align="right">
-          <a href="http://www.romainterrazza.it/IT/Home.aspx"><i>Roma in Terrazza</i></a>
+          <i>NewTechHome</i>
+        </div>
+      </div>
+
+      <div class="card blue darken-0">
+        <div class="card-content white-text">
+          <span class="card-title">Camera Matrimoniale</span>
+          {{ switch('Luci', 'parentsbedroom_light', 11) }}
+          <h6>
+            Temperatura stanza: <i>21°C</i>
+          </h6>
+        </div>
+        <div class="card-action" align="right">
+          <i>NewTechHome</i>
+        </div>
+      </div>
+
+      <div class="card blue darken-0">
+        <div class="card-content white-text">
+          <span class="card-title">Cameretta</span>
+          {{ switch('Luci', 'bedroom_light', 10) }}
+          <h6>
+            Temperatura stanza: <i>21°C</i>
+          </h6>
+        </div>
+        <div class="card-action" align="right">
+          <i>NewTechHome</i>
+        </div>
+      </div>
+
+      <div class="card blue darken-0">
+        <div class="card-content white-text">
+          <span class="card-title">Bagno</span>
+          {{ switch('Luci', 'bathroom_light', 9) }}
+          <h6>
+            Temperatura stanza: <i>21°C</i>
+          </h6>
+        </div>
+        <div class="card-action" align="right">
+          <i>NewTechHome</i>
         </div>
       </div>
 

@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 import sqlite3
 import serial
 import time
+
+
 from threading import Thread
 
 
@@ -141,7 +143,6 @@ def temperature(pin):
         # b'temperature;' + str(pin).encode())))
         return jsonify({"logged": True, "temperature": temperature})
     return jsonify({"logged": False})
-
 
 
 @app.route('/', methods=['POST'])

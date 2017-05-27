@@ -5,6 +5,7 @@ String string;
 char delimiter = ';';
 String splittedString[3];
 int index1, index2, index3;
+boolean isDoorOpen;
 
 void setup() {
   Serial.begin(9600);
@@ -20,8 +21,11 @@ void setup() {
   pinMode(7, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(A0, INPUT);
-  myServo.attach(3);
+  digitalWrite(13, LOW);
+  myServo.attach(3);     //Door
   myServo.write(0); 
+
+  isDoorOpen = false;
 }
 
 void loop() {
@@ -47,8 +51,22 @@ void loop() {
     
 
     if (splittedString[0].equals("toggle")) {
-      digitalWrite(splittedString[1].toInt(), !digitalRead(splittedString[1].toInt()));
-      Serial.println(digitalRead(splittedString[1].toInt()));
+      if(splittedString[1].toInt()!=3){
+        digitalWrite(splittedString[1].toInt(), !digitalRead(splittedString[1].toInt()));
+        Serial.println(digitalRead(splittedString[1].toInt()));
+      }
+      else{
+        if((splittedString[1].toInt()==3)&&(isDoorOpen==false)){
+            myServo.write(45);
+            isDoorOpen=true;
+        }
+        else{
+            myServo.write(-45);
+            isDoorOpen=false;
+        }
+        
+      }
+
     }
 
     if (splittedString[0].equals("temperature")) {
