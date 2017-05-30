@@ -3,6 +3,10 @@
 #using crontab -e
 
 cd BigBen
+
+mkdir logs
+chmod 777 logs
+
 python3 server.py >> logs/server-log.txt 2>&1 &
 
 cd api
