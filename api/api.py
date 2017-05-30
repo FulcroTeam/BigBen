@@ -62,7 +62,7 @@ class Arduino_one:
         self.ser.flush()
         time.sleep(0.2)
         char = self.ser.readline()[:-2]  # no newlines
-        print(char)
+        app.logger.debug("arduino char: " + str(char))
         return char
 
 
@@ -123,10 +123,11 @@ def checklogin(sessionid):
             return True
     return False
 
-
+"""
 @app.route('/toggle/<int:pin>', methods=['POST', 'GET'])
 def toggle(pin):
     if checklogin(request.form.get('sessionid')):
+        print("pin:" + pin)
         status = bool(int(
             arduino_one.serial_write_and_read(b'toggle;' + str(pin).encode())))
         return jsonify({"logged": True, "status": status})
@@ -143,7 +144,7 @@ def temperature(pin):
         # b'temperature;' + str(pin).encode())))
         return jsonify({"logged": True, "temperature": temperature})
     return jsonify({"logged": False})
-
+"""
 
 @app.route('/', methods=['POST'])
 def index():

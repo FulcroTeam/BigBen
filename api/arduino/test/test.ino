@@ -19,12 +19,14 @@ void setup() {
   pinMode(9, OUTPUT);
   pinMode(8, OUTPUT);
   pinMode(7, OUTPUT);
-  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT); //+5V door
   pinMode(A0, INPUT);
   digitalWrite(13, LOW);
   myServo.attach(3);     //Door
-  myServo.write(0); 
+ 
 
+  
+  
   isDoorOpen = false;
 }
 
@@ -56,13 +58,18 @@ void loop() {
         Serial.println(digitalRead(splittedString[1].toInt()));
       }
       else{
-        if((splittedString[1].toInt()==3)&&(isDoorOpen==false)){
-            myServo.write(45);
+        if(!isDoorOpen){
+            myServo.write(90);
             isDoorOpen=true;
+            Serial.println(90);
+            delay(15);
         }
         else{
-            myServo.write(-45);
+            myServo.write(0);
             isDoorOpen=false;
+            Serial.println(0);
+            delay(15);
+           
         }
         
       }
