@@ -1,3 +1,6 @@
+# Added by CastixGitHub to prevent logs upload
+logs/*
+
 # Created by https://www.gitignore.io/api/jetbrains
 
 ### JetBrains ###
