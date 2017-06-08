@@ -15,6 +15,7 @@ long startDistance;
 const int tmpSensorPin = A0;
 
 
+
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(100);
@@ -35,6 +36,7 @@ void setup() {
 
 
   myServo.attach(3);     //Door
+  myServo.write(70);
   isDoorOpen = false;
 
   digitalWrite(triggerPort, HIGH);
@@ -78,13 +80,13 @@ void loop() {
       else{
         if(splittedString[1].toInt()==3){
           if(!isDoorOpen){
-              myServo.write(90);
+              myServo.write(160);
               isDoorOpen=true;
-              Serial.println(90);
+              Serial.println(1);
               delay(15);
           }
           else{
-              myServo.write(0);
+              myServo.write(70);
               isDoorOpen=false;
               Serial.println(0);
               delay(15);
@@ -102,11 +104,10 @@ void loop() {
      int reading = analogRead(tmpSensorPin);  
      
      float voltage = reading * 5.0;
-     voltage /= 1024.0; 
-          
+     voltage /= 1024.0;  
      float temperature = (voltage - 0.5) * 100 ;  
-
      Serial.print(temperature);
+
     }
     
     if (splittedString[0].equals("digitalWrite")) {

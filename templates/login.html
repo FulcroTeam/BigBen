@@ -1,7 +1,9 @@
 {% include "head.html" %}
     <body>
         <nav class="blue darken-4" role="navigation">
-            <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">NewTechHome</a>
+            <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">
+        <img src="{{ url_for('static', filename='img/big-ben-in-london-white.png') }}" style="height: 32px;">
+        BigBen</a>
                 <ul class="right hide-on-med-and-down">
                     <li><a href="/login">Home</a></li>
                     <li><a href="/businessplan">Business Plan</a></li>

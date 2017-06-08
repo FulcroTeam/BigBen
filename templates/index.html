@@ -44,11 +44,10 @@
         <div class="card-content white-text">
           <span class="card-title"><h5>Casa Parisi</h5></span>
           <h6>
-            Serratura: <div style="display:inline;" id="door">--</div></i><br>
             Temperatura Media: <i><div style="display:inline;" id="tmp">--</div></i><br>
             Sensore Gas: <i>Parametri entro i limiti</i><br>
 
-            {{ switch('Serratura', 'door', 3) }}
+            {{ switch('Porta', 'door', 3) }}
 
             {{ switch('Allarme', 'alarm', 6) }}
 
