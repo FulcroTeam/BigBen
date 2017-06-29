@@ -123,8 +123,8 @@ void loop() {
       long distance = 0.034 * duration / 2;
       if(duration < startDuration)
         for(int index1; index1<10; index1++){
-          tone(piezoPort , 262 , 250);
-          delay(400);
+          tone(piezoPort , 200 , 250);
+          delay(300);
         }
     }
   }
